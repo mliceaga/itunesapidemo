@@ -26,13 +26,19 @@ const useStyles2 = makeStyles(theme => ({
   
   
   export default function SearchResults(props) {
-    const rows = Array.from(props.rows);
+    let rows = [];
+    rows = props.rows.results;
+
     const classes = useStyles2();
     const [page, setPage] = React.useState(0);
     const [rowsPerPage, setRowsPerPage] = React.useState(5);
 
-    const emptyRows = rowsPerPage - Math.min(rowsPerPage, rows.length - page * rowsPerPage);
-
+    let emptyRows = 0;
+    if(rows !== undefined)
+    {
+      emptyRows = rowsPerPage - Math.min(rowsPerPage, rows.length - page * rowsPerPage);
+    }
+    
     function handleChangePage(event, newPage) {
       setPage(newPage);
     }
@@ -47,7 +53,8 @@ const useStyles2 = makeStyles(theme => ({
         <div className={classes.tableWrapper}>
           <Table className={classes.table}>
             <TableBody>
-              {rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map(row => (
+              {
+                rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map(row => (
                 <TableRow key={row.wrapperType}>
                   <TableCell component="th" scope="row">
                     {row.wrapperType}

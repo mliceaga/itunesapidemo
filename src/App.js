@@ -1,7 +1,6 @@
 import React from 'react';
 import './App.css';
 import Box from '@material-ui/core/Box';
-import Toolbar from '@material-ui/core/Toolbar';
 import FormControl from '@material-ui/core/FormControl';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import Typography from '@material-ui/core/Typography';
@@ -10,8 +9,7 @@ import { makeStyles, withStyles } from '@material-ui/core/styles';
 import axios from 'axios';
 import { Button } from '@material-ui/core';
 import SearchResults from './searchResults';
-
-let rows = [];
+import ButtonAppBar from './Bar';
 
 const styles =
   makeStyles(theme => ({
@@ -37,6 +35,7 @@ class App extends React.Component {
      this.onClickBtn = this.onClickBtn.bind(this);
      this.textInputArtist = React.createRef();
      this.textInputAlbum = React.createRef();
+     this.state = { rows: [] };
   }
 
   onClickBtn() {
@@ -47,8 +46,7 @@ class App extends React.Component {
     {
         axios.get('https://itunes.apple.com/search?term='+ this.textInputArtist.current.value +'&entity=album&media=music&attribute=artistTerm')
         .then(response => {
-          //console.log(response.data);
-          rows = response.data;
+          this.setState({ rows: response.data});
           })
         .catch(error => {
           console.log(error);
@@ -58,8 +56,7 @@ class App extends React.Component {
     {
         axios.get('https://itunes.apple.com/search?term='+ this.textInputAlbum.current.value +'&entity=album&media=music&attribute=albumTerm')  
           .then(response => {
-          //console.log(response.data);
-          rows = response.data;
+          this.setState({ rows: response.data});
           })
         .catch(error => {
           console.log(error);
@@ -67,12 +64,44 @@ class App extends React.Component {
     }
   };
 
+  componentDidMount()
+  {
+    const artist = this.textInputArtist.current.value;
+    const album = this.textInputAlbum.current.value;
+
+    if(artist !== '')
+    {
+        axios.get('https://itunes.apple.com/search?term='+ this.textInputArtist.current.value +'&entity=album&media=music&attribute=artistTerm')
+        .then(response => {
+          this.setState({ rows: response.data});
+          })
+        .catch(error => {
+          console.log(error);
+        });
+    }
+    else if(album !== '')
+    {
+        axios.get('https://itunes.apple.com/search?term='+ this.textInputAlbum.current.value +'&entity=album&media=music&attribute=albumTerm')  
+          .then(response => {
+          this.setState({ rows: response.data});
+          })
+        .catch(error => {
+          console.log(error);
+        });
+    }
+  };
 
   render() {
     const { classes } = this.props;
-
+    const rowsFiltered = this.state.rows;
+    let searchResults;
+    if (rowsFiltered) {
+      searchResults = <SearchResults rows={rowsFiltered} />
+    }
+    
     return (
         <React.Fragment>
+        <ButtonAppBar></ButtonAppBar>
         <CssBaseline />
         <Container maxWidth="sm">
           <Typography component="div" style={{ backgroundColor: '#cfe8fc', height: '100vh' }}>
@@ -97,7 +126,7 @@ class App extends React.Component {
               <Button variant="contained" color="primary" className={classes.button} type="submit" onClick={this.onClickBtn}>Search by album</Button>
             </Box>
             <Box>
-              <SearchResults rows={rows} />
+            {searchResults}
             </Box>  
             (2)pantalla que muestre todos los albums de un artista
             (3)hacer pantalla que muestre todos los temas del album por album
