@@ -25,7 +25,7 @@ const useStyles2 = makeStyles(theme => ({
   }));
   
   
-  export default function SearchResults(props) {
+  export default function SearchResultsArtists(props) {
     let rows = [];
     rows = props.rows.results;
 
@@ -36,6 +36,7 @@ const useStyles2 = makeStyles(theme => ({
     let emptyRows = 0;
     if(rows !== undefined)
     {
+      
       emptyRows = rowsPerPage - Math.min(rowsPerPage, rows.length - page * rowsPerPage);
     }
     
@@ -55,12 +56,11 @@ const useStyles2 = makeStyles(theme => ({
             <TableBody>
               {
                 rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map(row => (
-                <TableRow key={row.wrapperType}>
+                <TableRow key={row.collectionName}>
                   <TableCell component="th" scope="row">
-                    {row.wrapperType}
+                    {row.artistName}
                   </TableCell>
-                  <TableCell align="right">{row.artistName}</TableCell>
-                  <TableCell align="right">{row.kind}</TableCell>
+                  <TableCell align="right">{row.collectionName}</TableCell>
                 </TableRow>
               ))}
   
@@ -94,6 +94,6 @@ const useStyles2 = makeStyles(theme => ({
     );
   }
   
-  SearchResults.propTypes = {
+  SearchResultsArtists.propTypes = {
     rows: PropTypes.array
   };

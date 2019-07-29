@@ -8,7 +8,8 @@ import Container from '@material-ui/core/Container';
 import { makeStyles, withStyles } from '@material-ui/core/styles';
 import axios from 'axios';
 import { Button } from '@material-ui/core';
-import SearchResults from './searchResults';
+import SearchResultsAlbums from './searchResultsAlbums';
+import SearchResultsArtists from './searchResultsArtists';
 import ButtonAppBar from './Bar';
 
 const styles =
@@ -32,31 +33,21 @@ const styles =
 class App extends React.Component {
    constructor(props) {
      super(props);
-     this.onClickBtn = this.onClickBtn.bind(this);
+     this.onClickBtnArtist = this.onClickBtnArtist.bind(this);
+     this.onClickBtnAlbum = this.onClickBtnAlbum.bind(this);
      this.textInputArtist = React.createRef();
      this.textInputAlbum = React.createRef();
-     this.state = { rows: [] };
+     this.state = { rows: [], artists: 0 };
   }
 
-  onClickBtn() {
-    const artist = this.textInputArtist.current.value;
+  onClickBtnAlbum() {
+    
     const album = this.textInputAlbum.current.value;
-
-    if(artist !== '')
+    if(album !== '')
     {
-        axios.get('https://itunes.apple.com/search?term='+ this.textInputArtist.current.value +'&entity=album&media=music&attribute=artistTerm')
+        axios.get('https://itunes.apple.com/search?term='+ this.textInputAlbum.current.value +'&entity=album&media=music&attribute=artistTerm')
         .then(response => {
-          this.setState({ rows: response.data});
-          })
-        .catch(error => {
-          console.log(error);
-        });
-    }
-    else if(album !== '')
-    {
-        axios.get('https://itunes.apple.com/search?term='+ this.textInputAlbum.current.value +'&entity=album&media=music&attribute=albumTerm')  
-          .then(response => {
-          this.setState({ rows: response.data});
+          this.setState({ rows: response.data, artists: 0});
           })
         .catch(error => {
           console.log(error);
@@ -64,39 +55,36 @@ class App extends React.Component {
     }
   };
 
-  componentDidMount()
-  {
+
+  onClickBtnArtist() {
     const artist = this.textInputArtist.current.value;
-    const album = this.textInputAlbum.current.value;
 
     if(artist !== '')
     {
-        axios.get('https://itunes.apple.com/search?term='+ this.textInputArtist.current.value +'&entity=album&media=music&attribute=artistTerm')
-        .then(response => {
-          this.setState({ rows: response.data});
-          })
-        .catch(error => {
-          console.log(error);
-        });
-    }
-    else if(album !== '')
-    {
-        axios.get('https://itunes.apple.com/search?term='+ this.textInputAlbum.current.value +'&entity=album&media=music&attribute=albumTerm')  
+        axios.get('https://itunes.apple.com/search?term='+ this.textInputArtist.current.value +'&entity=album&media=music&attribute=songTerm')  
           .then(response => {
-          this.setState({ rows: response.data});
+          this.setState({ rows: response.data, artists: 1});
           })
         .catch(error => {
           console.log(error);
         });
     }
   };
-
+  
   render() {
     const { classes } = this.props;
     const rowsFiltered = this.state.rows;
-    let searchResults;
-    if (rowsFiltered) {
-      searchResults = <SearchResults rows={rowsFiltered} />
+    let searchResultsAlbums;
+    let searchResultsArtists;
+    if ((rowsFiltered.length !== 0 || rowsFiltered.length === undefined) && this.state.artists === 0) {
+      searchResultsAlbums = <SearchResultsAlbums rows={rowsFiltered} />
+    }
+    else if ((rowsFiltered.length !== 0 || rowsFiltered.length === undefined) && this.state.artists === 1) {
+      searchResultsArtists = <SearchResultsArtists rows={rowsFiltered} />
+    }
+    else
+    {
+      searchResultsAlbums = <br></br>
     }
     
     return (
@@ -114,7 +102,7 @@ class App extends React.Component {
               type="text"
               ref={this.textInputArtist}
             />
-            <Button variant="contained" color="primary" className={classes.button} type="submit" onClick={this.onClickBtn}>Search by artist</Button>
+            <Button variant="contained" color="primary" className={classes.button} type="submit" onClick={this.onClickBtnArtist}>Search by artist</Button>
             </Box>
             <Box>
               {"Search by album:"}
@@ -123,13 +111,12 @@ class App extends React.Component {
                 type="text"
                 ref={this.textInputAlbum}
               />
-              <Button variant="contained" color="primary" className={classes.button} type="submit" onClick={this.onClickBtn}>Search by album</Button>
+              <Button variant="contained" color="primary" className={classes.button} type="submit" onClick={this.onClickBtnAlbum}>Search by album</Button>
             </Box>
             <Box>
-            {searchResults}
-            </Box>  
-            (2)pantalla que muestre todos los albums de un artista
-            (3)hacer pantalla que muestre todos los temas del album por album
+            {searchResultsAlbums}
+            {searchResultsArtists}
+            </Box>
          </FormControl>
          </div>
          </Typography>
